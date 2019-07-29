@@ -1,0 +1,81 @@
+启动zk
+[hadoop@hadoop000 bin]$ ./zkServer.sh start
+JMX enabled by default
+Using config: /home/hadoop/app/zookeeper-3.4.5-cdh5.15.1/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[hadoop@hadoop000 bin]$ jps
+2092 QuorumPeerMain
+2110 Jps
+[hadoop@hadoop000 bin]$
+
+启动kafka
+[hadoop@hadoop000 bin]$ ./kafka-server-start.sh -daemon ~/app/kafka_2.11-1.1.1/config/server.properties
+[hadoop@hadoop000 bin]$ jps
+2504 Kafka
+2092 QuorumPeerMain
+2574 Jps
+[hadoop@hadoop000 bin]$ ./kafka-topics.sh --list --zookeeper hadoop000:2181
+__consumer_offsets
+pktest
+test
+
+ES 后台启动
+[hadoop@hadoop000 bin]$ ./elasticsearch -d
+验证：http://192.168.31.100:9200/
+{
+  "name" : "ybuKxdv",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "1HZ-DWHuRfWY8m6JrwU4Yg",
+  "version" : {
+    "number" : "6.6.2",
+    "build_flavor" : "default",
+    "build_type" : "tar",
+    "build_hash" : "3bd3e59",
+    "build_date" : "2019-03-06T15:16:26.864148Z",
+    "build_snapshot" : false,
+    "lucene_version" : "7.6.0",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+
+[hadoop@hadoop000 bin]$ curl -XPUT 'http://hadoop000:9200/cdn'
+{"acknowledged":true,"shards_acknowledged":true,"index":"cdn"}
+[hadoop@hadoop000 bin]$ curl -H "Content-Type:application/json" -XPUT 'http://hadoop000:9200/cdn/traffic/_mapping' -d '
+"traffic":{
+	"properties":{
+		"domain":{"type":"keyword"},
+		"traffics":{"type":"long"},
+		"time":{"type":"date":"format": "yyyy-MM-dd HH:mm"}
+	}
+}'
+使用kibana创建，命令如下：
+put /cdn/traffic/_mapping
+{
+	"properties":{
+		"domain":{"type":"keyword"},
+		"traffics":{"type":"long"},
+		"time":{"type":"date","format": "yyyy-MM-dd HH:mm"}
+	}
+
+}
+
+kibna启动
+[hadoop@hadoop000 bin]$ ./kibana
+
+验证：http://192.168.31.100:5601/app/kibana
+
+
+create table user_domain_config(
+id int unsigned auto_increment,
+user_id varchar(40) not null,
+domain varchar(40) not null,
+primary key (id)
+);
+
+insert into user_domain_config(user_id, domain) values('8000000','v1.go2yd.com');
+insert into user_domain_config(user_id, domain) values('8000000','v2.go2yd.com');
+insert into user_domain_config(user_id, domain) values('8000000','v3.go2yd.com');
+insert into user_domain_config(user_id, domain) values('8000000','v4.go2yd.com');
+insert into user_domain_config(user_id, domain) values('8000000','vmi.go2yd.com');
